@@ -66,7 +66,7 @@ class Controller(QtCore.QObject):
     def __init__(self, root, parent=None):
         super(Controller, self).__init__(parent)
 
-        self._root = root
+        self._root = root  # Keep original root
         self._breadcrumbs = list()
         self._processes = list()
         self._model = model.Model(
@@ -113,7 +113,7 @@ class Controller(QtCore.QObject):
 
         # Get the current environment
         frame = self.current_frame()
-        frame["environment"]["root"] = self._root
+        frame["environment"]["root"] = os.environ["AVALON_PROJECTS"]
 
         # When we are outside of any project, do nothing
         config = frame.get("config", None)
@@ -282,6 +282,11 @@ class Controller(QtCore.QObject):
         assert project is not None, "This is a bug"
 
         frame["config"] = project["config"]
+
+        # Use project root if exists or default root will be used
+        root = project["data"].get("root", self._root)
+        os.environ["AVALON_PROJECTS"] = root
+        api.Session["AVALON_PROJECTS"] = root
 
         # Get available project actions and the application actions
         actions = api.discover(api.Action)
