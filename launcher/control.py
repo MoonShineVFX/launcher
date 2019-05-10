@@ -279,6 +279,9 @@ class Controller(QtCore.QObject):
         frame["config"] = project["config"]
 
         # Use project root if exists or default root will be used
+        # (NOTE): The root path from `self._root` may have path sep appended
+        #         because it's been processed by `os.path.realpath` in
+        #         `app.main`
         root = project["data"].get("root", self._root)
         os.environ["AVALON_PROJECTS"] = root
         api.Session["AVALON_PROJECTS"] = root
