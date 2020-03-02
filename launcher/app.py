@@ -136,7 +136,7 @@ class Application(QtWidgets.QApplication):
 def main(root, demo=False):
     """Start the Qt-runtime and show the window"""
 
-    root = os.path.realpath(root)
+    root = os.path.normpath(root)
 
     print("Starting avalon-launcher")
     app = Application(root, APP_PATH)
