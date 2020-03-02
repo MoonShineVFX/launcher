@@ -3,6 +3,7 @@ import sys
 import copy
 import traceback
 import contextlib
+import getpass
 
 from PyQt5 import QtCore
 
@@ -244,6 +245,18 @@ class Controller(QtCore.QObject):
         terminal.log("initialising..")
         header = "Root"
 
+        def project_visible(data):
+            return data.get("visible", True)  # Discard hidden projects
+
+        def project_member(data):
+            user = getpass.getuser().lower()
+            member = data.get("role", dict()).get("member", list())
+            return user in member
+
+        project_active = (project_member
+                          if os.getenv("AVALON_LAUNCHER_USE_PROJECT_MEMBER")
+                          else project_visible)
+
         self._model.push([
             dict({
                 "_id": project["_id"],
@@ -251,7 +264,7 @@ class Controller(QtCore.QObject):
                 "name": project["name"],
             }, **project["data"])
             for project in sorted(io.projects(), key=lambda x: x['name'])
-            if project["data"].get("visible", True)  # Discard hidden projects
+            if project_active(project["data"])
         ])
 
         frame = {"environment": {}}
